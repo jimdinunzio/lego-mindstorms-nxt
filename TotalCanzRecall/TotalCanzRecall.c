@@ -296,7 +296,6 @@ void rotateRobot(float angle, int power = rotatePower)
 	}
 
 	nSyncedMotors = synchMode; // sync motors Right as master and Left as slave
-//	nMotorEncoder[Right] = 0; // clear motor encoder value
 	nSyncedTurnRatio = -100; // motors move in opposite direction of each other
 	nMotorEncoderTarget[Master] = ticksToGo;
 	motor[Master] = power;
@@ -340,9 +339,8 @@ void rotateRobotToHeadingInDeg(float newHeading, int power = rotatePower)
 void driveRobotStraight(int ticks)
 {
 	// Drive robot in straight line to destination
-//	nSyncedMotors = synchMode; // sync motors Left as master and Right as slave
-//	nSyncedTurnRatio = 100; // motors move at 100% alignment to each other
-//	nMotorEncoder[Right] = 0;
+	nSyncedMotors = synchMode; // sync motors Left as master and Right as slave
+	nSyncedTurnRatio = 100; // motors move at 100% alignment to each other
 	if (ticks == 0)
 	{
 		return;
@@ -360,12 +358,12 @@ void driveRobotStraight(int ticks)
 	semaphoreLock(currentPose);
 	assignPose(startPose, gCurrentPose);
 	semaphoreUnlock(currentPose);
-	Vector2d Vt = { cos(startPose.theta), sin(startPose.theta) };
+	//Vector2d Vt = { cos(startPose.theta), sin(startPose.theta) };
 
-	nMotorEncoderTarget[Right] = ticks;	nMotorEncoderTarget[Left] = ticks;
-	motor[Right] = power;	motor[Left] = power;
+	nMotorEncoderTarget[Master] = ticks;
+	motor[Master] = power;
 
-	while (nMotorRunState[Right] != runStateIdle || nMotorRunState[Left] != runStateIdle) //while Right and Left motors are not in idle
+	while (nMotorRunState[Master] != runStateIdle) // while Master motor is not in idle
 	{
 	//	Pose pose;
 	//	// keep robot driving straight by checking if current location is veering right or left and
@@ -388,10 +386,10 @@ void driveRobotStraight(int ticks)
 	//		writeDebugStreamLine("going straight!");
 	//	}
 	//	wait1Msec(500);
+  	wait1Msec(10);
 	}
-	motor[Right] = 0;
-	motor[Left] = 0;
-//	nSyncedMotors = synchNone;
+	motor[Master] = 0;
+	nSyncedMotors = synchNone;
 }
 
 void driveRobotStraightInMm(float distance)
@@ -588,13 +586,13 @@ bool captureTarget(float distanceToTarget, float angleToTarget)
 	int ticks = distanceToTicks(distanceToTarget);
 
 	// Drive robot in straight line to destination
-//	nSyncedMotors = synchMode; // sync motors Right as master and Left as slave
-//	nSyncedTurnRatio = 100; // motors move at 100% alignment to each other
+	nSyncedMotors = synchMode; // sync motors Right as master and Left as slave
+	nSyncedTurnRatio = 100; // motors move at 100% alignment to each other
 
-	nMotorEncoderTarget[Right] = ticks;	nMotorEncoderTarget[Left] = ticks;
-	motor[Right] = maxPower;	motor[Left] = maxPower;
+	nMotorEncoderTarget[Master] = ticks;
+	motor[Master] = maxPower;
 
-	while (nMotorRunState[Right] != runStateIdle || nMotorRunState[Left] != runStateIdle) //while Right and Left motors are not in idle
+	while (nMotorRunState[Master] != runStateIdle) // while Master motor is not in idle
 	{
 		// if we are < MaxCaptureDistance cm have run into object
 		if (SensorValue[Distance] < MaxCaptureDistance)
@@ -603,9 +601,8 @@ bool captureTarget(float distanceToTarget, float angleToTarget)
 			break;
 		}
 	}
-	motor[Right] = 0;
-	motor[Left] = 0;
-//	nSyncedMotors = synchNone;
+	motor[Master] = 0;
+	nSyncedMotors = synchNone;
 	return (SensorValue[Distance] < MaxCaptureDistance);
 }
 
@@ -622,7 +619,7 @@ task stopAfterBlackLine()
 					writeDebugStreamLine("Black line passed.");
 					// stop robot
 					gStopGoingToDest = true;
-					motor[Right] = 0; motor[Left] = 0;
+					motor[Master] = 0;
 					return;
 				}
 				wait1Msec(50);
@@ -656,8 +653,8 @@ task turnTowardCenterIfBlackLineHit()
 		{
 			gTurnTowardCenterIfBlackLineHitActing = true;
 			writeDebugStreamLine("Black line detected.");
-			// stop robot
-			motor[Right] = 0; motor[Left] = 0;
+			// stop robot currently going straight
+			motor[Master] = 0;
 			wait1Msec(50);
 			turnTorwardCenterOfRoom();
 			wait1Msec(50);
@@ -686,7 +683,7 @@ task main()
 	// start robot in center of the trash can area facing down the edge of the "room" toward the far side
 	setPose(gCurrentPose, home[0], home[1], 0.0);
 
-	playSoundFile("TimeToCollect.rso");
+	playSoundFile("TimeToCo.rso");
 	waitUntil(bSoundActive == false);
 
 	// start the localization task
@@ -700,15 +697,15 @@ task main()
 //	waitUntil(nNxtButtonPressed != kNoButton);
 //	wait1Msec(1000);
 //}
-	//int angle = -90;
+	//int angle = 90;
 	//wait1Msec(1000);
 	//while(1)
 	//{
 	//	goToDestination(1000,0);
 	//	wait1Msec(50);
-	//	goToDestination(1000,-1000);
+	//	goToDestination(1000,1000);
 	//	wait1Msec(50);
-	//	goToDestination(0,-1000);
+	//	goToDestination(0,1000);
 	//	wait1Msec(50);
 	//	goToDestination(0,0);
 	//	rotateRobotInDeg(angle);
