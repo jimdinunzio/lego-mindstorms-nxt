@@ -774,15 +774,12 @@ task main()
 					goToDestination(home);
 					stopTask(stopAfterBlackLine);
 					semaphoreLock(currentPose);
-					writeDebugStreamLine("at home location = %d, %d", gCurrentPose.pos[0], gCurrentPose.pos[1]);
-					writeDebugStreamLine("error = %d, %d", gCurrentPose.pos[0] - home[0], gCurrentPose.pos[1] - home[1]);
 					semaphoreUnlock(currentPose);
 					wait1Msec(50);
 					driveRobotStraightInMm(BackupDistanceAfterDropOff);
 					rotateRobotInDeg(-180);
 					nearOrAtHome = true;
 					canCount++;
-					//waitUntil(nNxtButtonPressed == kEnterButton);
 				}
 				else
 				{
