@@ -1,5 +1,5 @@
 # TotalCanzRecall
-This project is a program written in the commercially available ROBOTC environment for the LEGO Mindstorms NXT.  Its purpose is to command a robot to perform the required actions to succeed in a contest called [*Clean The Room*]((https://www.rssc.org/cleantheroom.html) hosted by the [Robotics Society of Southern California](www.rssc.org). 
+This project is a program written in the commercially available ROBOTC environment for the LEGO Mindstorms NXT.  Its purpose is to command a robot to perform the required actions to succeed in a contest called [*Clean The Room*](https://www.rssc.org/cleantheroom.html) hosted by the [Robotics Society of Southern California](www.rssc.org). 
 
 In a nutshell the robot is to detect soda cans in a square area on the floor outlined by black tape, capture them one at a time and bring them back to an area the size of a sheet of 8" 1/2 x 11" paper outlined by black tap and do this completely autonomously.
 
