@@ -18,35 +18,9 @@
 */
 
 // Odometry routines
-void updateOdometry(WheelsTicks& prevTicks, Pose prevPose, Pose& newPose)
-{
-	// compute difference in ticks since prevTicks
-	int ticksRight = nMotorEncoder[Right];
-	int ticksLeft = nMotorEncoder[Left];
-
-	int dTicksRight = ticksRight - prevTicks.right;
-	int dTicksLeft = ticksLeft - prevTicks.left;
-
-	// estimate the wheel movements
-	float dRightWheel = dTicksRight / rightTicksPerMm;
-	float dLeftWheel =  dTicksLeft / leftTicksPerMm;
-	float dCenter = 0.5 * (dRightWheel + dLeftWheel);
-
-	// calculate the new pose
-	newPose.pos[0] = prevPose.pos[0] + (dCenter * cos(prevPose.theta));
-	newPose.pos[1] = prevPose.pos[1] + (dCenter * sin(prevPose.theta));
-	newPose.theta = prevPose.theta + ((dRightWheel - dLeftWheel) / robotWheelBaseLength);
-	newPose.theta = normalizeAngle(newPose.theta);
-
-	// update the previous ticks
-	prevTicks.right = ticksRight;
-	prevTicks.left = ticksLeft;
-}
-
-//// this is the slower and more accurate method
 //void updateOdometry2(WheelsTicks& prevTicks, Pose prevPose, Pose& newPose)
 //{
-//	// compute difference in ticks since last iteration
+//	// compute difference in ticks since prevTicks
 //	int ticksRight = nMotorEncoder[Right];
 //	int ticksLeft = nMotorEncoder[Left];
 
@@ -55,29 +29,56 @@ void updateOdometry(WheelsTicks& prevTicks, Pose prevPose, Pose& newPose)
 
 //	// estimate the wheel movements
 //	float dRightWheel = dTicksRight / rightTicksPerMm;
-//	float dLeftWheel = dTicksLeft / leftTicksPerMm;
+//	float dLeftWheel =  dTicksLeft / leftTicksPerMm;
+//	float dCenter = 0.5 * (dRightWheel + dLeftWheel);
 
-//	// handle case if going straight
-//	if (fabs(dLeftWheel - dRightWheel) < epsilon)
-//	{
-//		newPose.pos[0] = prevPose.pos[0] + dLeftWheel * cos(prevPose.theta);
-//		newPose.pos[1] = prevPose.pos[1] + dRightWheel * sin(prevPose.theta);
-//		newPose.theta = prevPose.theta;
-//	}
-//	else
-//	{
-//		// calculate the new pose not going straight
-//		float R = (robotWheelBaseLength * (dLeftWheel + dRightWheel)) / (2 * (dRightWheel - dLeftWheel));
-//		float wd = (dRightWheel - dLeftWheel) / robotWheelBaseLength;
-//		newPose.pos[0] = prevPose.pos[0] + R * sin(wd + prevPose.theta) - R * sin(prevPose.theta);
-//		newPose.pos[1] = prevPose.pos[1] - R * cos(wd + prevPose.theta) + R * cos(prevPose.theta);
-//		newPose.theta = normalizeAngle(prevPose.theta + wd);
-//	}
+//	// calculate the new pose
+//	newPose.pos[0] = prevPose.pos[0] + (dCenter * cos(prevPose.theta));
+//	newPose.pos[1] = prevPose.pos[1] + (dCenter * sin(prevPose.theta));
+//	newPose.theta = normalizeAngle(prevPose.theta + ((dRightWheel - dLeftWheel) / robotWheelBaseLength));
 
 //	// update the previous ticks
 //	prevTicks.right = ticksRight;
 //	prevTicks.left = ticksLeft;
 //}
+
+// this is the slower and more accurate method
+void updateOdometry(WheelsTicks& prevTicks, Pose prevPose, Pose& newPose)
+{
+	// compute difference in ticks since last iteration
+	int ticksRight = nMotorEncoder[Right];
+	int ticksLeft = nMotorEncoder[Left];
+
+	int dTicksRight = ticksRight - prevTicks.right;
+	int dTicksLeft = ticksLeft - prevTicks.left;
+
+	// estimate the wheel movements
+	float dRightWheel = dTicksRight / rightTicksPerMm;
+	float dLeftWheel = dTicksLeft / leftTicksPerMm;
+
+	// handle case if going straight
+	if (fabs(dLeftWheel - dRightWheel) < epsilon)
+	{
+		newPose.pos[0] = prevPose.pos[0] + dLeftWheel * cos(prevPose.theta);
+		newPose.pos[1] = prevPose.pos[1] + dRightWheel * sin(prevPose.theta);
+		newPose.theta = prevPose.theta;
+	}
+	else
+	{
+		// calculate the new pose not going straight
+		float R = (robotWheelBaseLength * (dLeftWheel + dRightWheel)) / (2 * (dRightWheel - dLeftWheel));
+		float wd = (dRightWheel - dLeftWheel) / robotWheelBaseLength;
+		// calibration factor
+		wd *= 1.024;
+		newPose.pos[0] = prevPose.pos[0] + R * sin(wd + prevPose.theta) - R * sin(prevPose.theta);
+		newPose.pos[1] = prevPose.pos[1] - R * cos(wd + prevPose.theta) + R * cos(prevPose.theta);
+		newPose.theta = normalizeAngle(prevPose.theta + wd);
+	}
+
+	// update the previous ticks
+	prevTicks.right = ticksRight;
+	prevTicks.left = ticksLeft;
+}
 
 // must call this periodically to avoid "wrap around" of values ~90 revolutions)
 void resetMotorEncoders()

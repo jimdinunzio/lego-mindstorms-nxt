@@ -1,0 +1,25 @@
+robot start pos
+Pose = (-107.500000, 0.000000, 0.000000 deg)
+pen start pos
+Pen loc = (0.000000, 0.000000)
+Rotating robot by 0.000000 degrees
+Driving robot straight by 93.593277 mm
+after draw to first point robot pos
+Pose = (-13.293207, 2.472412, 1.787936 deg)
+Pen loc = (94.154457, 5.826446)
+Rotating robot by -2.686874 degrees
+Driving robot straight by 105.592415 mm
+after bot to current point robot pos
+Pose = (92.228806, 2.633972, 0.223492 deg)
+Rotating robot by 94.356552 degrees
+after turning to next point robot pos
+Pose = (95.506363, 3.121586, 95.431122 deg)
+Driving robot straight by -107.512276 mm
+after backing up robot pos
+Pose = (102.172058, -104.715958, 93.643188 deg)
+Pen loc = (95.341202, 2.566795)
+Rotating robot by 1.086659 degrees
+Driving robot straight by 125.271004 mm
+after drawing to next point robot pos
+Pose = (85.807861, 19.211639, 97.889519 deg)
+Pen loc = (71.052048, 125.694107)
